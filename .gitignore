@@ -1,0 +1,9 @@
+# Apple
+.DS_Store
+
+# JetBrains
+.idea/
+
+# Python
+__pycache__
+*.pyc
