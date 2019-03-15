@@ -1,5 +1,6 @@
 import unittest
 
+from math import sqrt
 from ngram import Ngram
 from ngram_aggregator import NgramAggregator
 
@@ -31,3 +32,9 @@ class TestNgramAggregator(unittest.TestCase):
         self.assertDictEqual(self.agg.get_representation(), {hash(self.ngram1): [(doc1_id, 2), (doc2_id, 1)],
                                                              hash(self.ngram2): [(doc1_id, 1), (doc2_id, 2)],
                                                              hash(self.ngram3): [(doc2_id, 1)]})
+
+    def test_get_magnitude(self):
+        doc1_id = "doc1"
+        self.agg.add_to_representation(doc1_id, self.s1)
+        self.assertEqual(self.agg.get_magnitude("blah"), 0)
+        self.assertEqual(self.agg.get_magnitude(doc1_id), sqrt(5))
