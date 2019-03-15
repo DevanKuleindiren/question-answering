@@ -37,4 +37,4 @@ class TestNgramAggregator(unittest.TestCase):
         doc1_id = "doc1"
         self.agg.add_to_representation(doc1_id, self.s1)
         self.assertEqual(self.agg.get_magnitude("blah"), 0)
-        self.assertEqual(self.agg.get_magnitude(doc1_id), sqrt(5))
+        self.assertEqual(self.agg.get_magnitude(doc1_id), sqrt(2 * 2 / (2 * 2) + 1 * 1 / (2 * 2)))
