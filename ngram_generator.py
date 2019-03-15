@@ -1,3 +1,6 @@
+from ngram import Ngram
+
+
 class NgramGenerator:
 
     def __init__(self, n):
@@ -8,8 +11,8 @@ class NgramGenerator:
 
         ngrams = []
         for i in range(0, len(words) - self.n + 1):
-            ngram = []
+            ngram_tokens = []
             for j in range(0, self.n):
-                ngram.append(words[i + j])
-            ngrams.append(ngram)
+                ngram_tokens.append(words[i + j])
+            ngrams.append(Ngram(ngram_tokens))
         return ngrams
