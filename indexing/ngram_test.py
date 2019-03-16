@@ -1,6 +1,6 @@
 import unittest
 
-from ngram import Ngram
+from indexing.ngram import Ngram
 
 
 class TestNgram(unittest.TestCase):

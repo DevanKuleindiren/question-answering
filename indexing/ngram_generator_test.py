@@ -1,7 +1,7 @@
 import unittest
 
-import ngram_generator
-from ngram import Ngram
+from indexing import ngram_generator
+from indexing.ngram import Ngram
 
 
 class TestNgramGenerator(unittest.TestCase):

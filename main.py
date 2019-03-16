@@ -1,5 +1,5 @@
-from ngram_generator import NgramGenerator
-from ngram_postings_list import NgramPostingsList
+from indexing.ngram_generator import NgramGenerator
+from indexing.ngram_postings_list import NgramPostingsList
 
 doc1 = "hello world hello world"
 doc2 = "hello world hello again"

@@ -1,8 +1,8 @@
 import unittest
 
 from math import sqrt
-from ngram import Ngram
-from ngram_postings_list import NgramPostingsList
+from indexing.ngram import Ngram
+from indexing.ngram_postings_list import NgramPostingsList
 
 
 class TestNgramAggregator(unittest.TestCase):

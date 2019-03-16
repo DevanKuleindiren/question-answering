@@ -1,4 +1,4 @@
-from ngram import Ngram
+from indexing.ngram import Ngram
 
 
 class NgramGenerator:
