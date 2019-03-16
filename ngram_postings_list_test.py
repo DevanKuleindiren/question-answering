@@ -2,13 +2,13 @@ import unittest
 
 from math import sqrt
 from ngram import Ngram
-from ngram_aggregator import NgramAggregator
+from ngram_postings_list import NgramPostingsList
 
 
 class TestNgramAggregator(unittest.TestCase):
 
     def setUp(self):
-        self.agg = NgramAggregator()
+        self.agg = NgramPostingsList()
         self.ngram1 = Ngram(["hello", "world"])
         self.ngram2 = Ngram(["again", "another"])
         self.ngram3 = Ngram(["world", "hello"])

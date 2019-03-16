@@ -1,7 +1,7 @@
 from math import sqrt
 
 
-class NgramAggregator:
+class NgramPostingsList:
 
     def __init__(self):
         self.ngram_to_docs = {}
