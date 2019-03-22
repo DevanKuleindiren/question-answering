@@ -1,4 +1,5 @@
 import argparse
+import glob
 import json
 import string
 
@@ -7,7 +8,8 @@ from indexing.ngram_postings_list import NgramPostingsList
 
 flag_parser = argparse.ArgumentParser(description="Send queries to a specified list of documents.")
 flag_parser.add_argument(
-    '--docs_file_path', help='File path to the JSON file containing documents.', dest='docs_file_path')
+    '--docs_file_path', help='File path to the JSON file(s) containing documents. Can be in regex format.',
+    dest='docs_file_path')
 
 
 def main():
@@ -21,15 +23,19 @@ def main():
     bigram_postings_list = NgramPostingsList()
     doc_index = {}
 
-    with open(flags.docs_file_path) as docs_file:
-        for doc_json in docs_file:
-            json_data = json.loads(doc_json)
-            doc_url = json_data['url']
-            doc_id = hash(doc_url)
-            doc_index[doc_id] = doc_url
-            doc_text = json_data['text'].translate(str.maketrans('', '', string.punctuation))
-            bigram_postings_list.add_to_representation(
-                doc_id, bigram_postings_list.aggregate(bigram_generator.generate_ngrams(doc_text)))
+    docs_file_paths = sorted(glob.glob(flags.docs_file_path))
+
+    for docs_file_path in docs_file_paths:
+        with open(docs_file_path) as docs_file:
+            for doc_json in docs_file:
+                json_data = json.loads(doc_json)
+                doc_url = json_data['url']
+                doc_id = hash(doc_url)
+                doc_index[doc_id] = doc_url
+                doc_text = json_data['text'].translate(str.maketrans('', '', string.punctuation))
+                bigram_postings_list.add_to_representation(
+                    doc_id, bigram_postings_list.aggregate(bigram_generator.generate_ngrams(doc_text)))
+        print('Indexed: %s' % docs_file_path)
     print('Indexed %d docs' % len(doc_index))
 
     while True:
