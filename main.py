@@ -32,14 +32,14 @@ def main():
                 doc_url = json_data['url']
                 doc_id = hash(doc_url)
                 doc_index[doc_id] = doc_url
-                doc_text = json_data['text'].translate(str.maketrans('', '', string.punctuation))
+                doc_text = json_data['text'].translate(str.maketrans('', '', string.punctuation)).lower()
                 bigram_postings_list.add_to_representation(
                     doc_id, bigram_postings_list.aggregate(bigram_generator.generate_ngrams(doc_text)))
         print('Indexed: %s' % docs_file_path)
     print('Indexed %d docs' % len(doc_index))
 
     while True:
-        query_text = input('Query: ')
+        query_text = input('Query: ').lower()
         query_bigrams = bigram_generator.generate_ngrams(query_text)
         top_documents = bigram_postings_list.query(query_bigrams)
         sorted_top_documents = sorted(top_documents.items(), key=lambda kv: kv[1], reverse=True)
