@@ -5,6 +5,7 @@ import string
 
 from indexing.ngram_generator import NgramGenerator
 from indexing.ngram_postings_list import NgramPostingsList
+from indexing.index_builder import IndexBuilder
 
 flag_parser = argparse.ArgumentParser(description="Send queries to a specified list of documents.")
 flag_parser.add_argument(
@@ -19,33 +20,25 @@ def main():
         print('--docs_file_path needs to be set.')
         return
 
-    bigram_generator = NgramGenerator(2)
-    bigram_postings_list = NgramPostingsList()
-    doc_index = {}
+    index_builder = IndexBuilder(NgramGenerator(2), NgramPostingsList())
 
     docs_file_paths = sorted(glob.glob(flags.docs_file_path))
 
     for docs_file_path in docs_file_paths:
-        with open(docs_file_path) as docs_file:
+        with open(docs_file_path, 'r', encoding="utf-8") as docs_file:
             for doc_json in docs_file:
                 json_data = json.loads(doc_json)
-                doc_url = json_data['url']
-                doc_id = hash(doc_url)
-                doc_index[doc_id] = doc_url
-                doc_text = json_data['text'].translate(str.maketrans('', '', string.punctuation)).lower()
-                bigram_postings_list.add_to_representation(
-                    doc_id, bigram_postings_list.aggregate(bigram_generator.generate_ngrams(doc_text)))
+                index_builder.add_document(
+                    json_data['url'],
+                    json_data['text'].translate(str.maketrans('', '', string.punctuation)).lower())
         print('Indexed: %s' % docs_file_path)
-    print('Indexed %d docs' % len(doc_index))
+    print('Indexed %d docs' % index_builder.size())
+
+    index_server = index_builder.generate_index_server()
 
     while True:
         query_text = input('Query: ').lower()
-        query_bigrams = bigram_generator.generate_ngrams(query_text)
-        top_documents = bigram_postings_list.query(query_bigrams)
-        sorted_top_documents = sorted(top_documents.items(), key=lambda kv: kv[1], reverse=True)
-        sorted_top_documents_with_urls = [(doc_id, doc_index[doc_id], score)
-                                          for (doc_id, score) in sorted_top_documents]
-        print(sorted_top_documents_with_urls)
+        print(index_server.query(query_text, include_urls=True))
 
 
 if __name__ == '__main__':
