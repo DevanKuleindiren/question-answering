@@ -30,3 +30,12 @@ class IndexServer:
         if limit_to_top is None:
             return results_list
         return results_list[:limit_to_top]
+
+    def get_paragraphs(self, doc_id):
+        non_empty_paragraphs = []
+        if doc_id in self.doc_id_to_text:
+            paragraphs = self.doc_id_to_text[doc_id].splitlines()
+            # splitlines() may produce some empty lines where there are multiple newline characters in a row, so those
+            # are filtered out.
+            non_empty_paragraphs = list(filter(bool, paragraphs))
+        return non_empty_paragraphs
