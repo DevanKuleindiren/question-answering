@@ -16,8 +16,8 @@ class IndexServer:
     # Returns the results matching the given query.
     # Note: the queries should be processed the same way that the documents were processed.
     def query(self, query_text, include_urls=False, limit_to_top=None, include_text=False):
-        query_bigrams = self.ngram_generator.generate_ngrams(query_text)
-        top_documents = self.ngram_postings_list.query(query_bigrams)
+        query_ngrams = self.ngram_generator.generate_ngrams(query_text)
+        top_documents = self.ngram_postings_list.query(query_ngrams)
         sorted_top_documents = sorted(top_documents.items(), key=lambda kv: kv[1], reverse=True)
         results_list = []
         for (doc_id, score) in sorted_top_documents:
