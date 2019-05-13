@@ -20,7 +20,7 @@ class FeatureVectorGenerator():
             if q.lower() == token.lower():
                 found_lowercase_form = True
 
-        lemmatized_word = self.lemmatizer.stem(token)
+        lemmatized_word = self.lemmatizer(token)
         for q in lemmatized_question:
             if lemmatized_word == q:
                 found_lemma_form = True
@@ -30,7 +30,7 @@ class FeatureVectorGenerator():
     def generate_lemmatized_question(self, question):
         lemmatized_question = []
         for q in question:
-            lemmatized_question.append(self.lemmatizer.stem(q))
+            lemmatized_question.append(self.lemmatizer(q))
         return lemmatized_question
 
     def generate_feature_vector_for_paragraph(self, paragraph, question):
