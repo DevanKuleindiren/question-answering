@@ -29,10 +29,6 @@ class GloveEmbedder:
         # Append the unknown token vector to the start of the embedding matrix.
         self.embedding_matrix = np.insert(self.embedding_matrix, 0, unknown_token_vector, axis=0)
         self.vocab_size, self.embedding_dim = self.embedding_matrix.shape
-        print("EMBEDDING MATRIX")
-        print(self.embedding_matrix)
-        print("word to id")
-        print(self.word_to_id)
 
     def get_embedding_layer(self):
         return tf.keras.layers.Embedding(self.vocab_size, self.embedding_dim,

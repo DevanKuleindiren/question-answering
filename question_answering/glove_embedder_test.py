@@ -34,6 +34,4 @@ class TestIndexServer(unittest.TestCase):
             f.write("the 0\ncat 8\nsat 9")
         glove_embedder = GloveEmbedder(temp_file_path)
         word_ids = glove_embedder.get_ids(["the", "dog", "cat", "sat"])
-        print("WORD IDS")
-        print(word_ids)
         np.testing.assert_array_almost_equal(word_ids, np.array([1, 0, 2, 3], dtype=np.float), decimal=6)
