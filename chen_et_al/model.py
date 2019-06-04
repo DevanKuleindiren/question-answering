@@ -1,5 +1,7 @@
 import tensorflow as tf
 
+from question_answering.glove_embedder import GloveEmbedder
+
 
 # Encodes the question (a sequence of embedding vectors) to its representation
 # as re-weighted sum of the input vectors.
@@ -47,21 +49,21 @@ class QuestionEncoder(tf.keras.Model):
 # Output :
 #  - index_start * (p sequence length) + index_end
 class FullNetwork(tf.keras.Model):
-    def __init__(self, vocab_size, embedding_dim, hidden_units, batch_size):
+    def __init__(self, embedding_layer, hidden_units, batch_size):
         super(FullNetwork, self).__init__()
         self.batch_size = batch_size
-        self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
+        self.embedding = embedding_layer
         self.layer1 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(hidden_units,
                                                                          return_sequences=True),
-                                                    input_shape=(batch_size, embedding_dim))
+                                                    input_shape=(batch_size, embedding_layer.output_dim))
         self.layer2 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(hidden_units, return_sequences=True))
         self.layer3 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(hidden_units, return_sequences=True))
         self.question_encoder = QuestionEncoder(
-            input_dims=embedding_dim,
+            input_dims=embedding_layer.output_dim,
             hidden_units=hidden_units,
             batch_size=batch_size)
         self.alpha = tf.keras.layers.Dense(1, activation=tf.nn.relu)
-        self.p_feature_vec_total_length = embedding_dim * 2
+        self.p_feature_vec_total_length = embedding_layer.output_dim * 2
         self.W_s = tf.keras.layers.Dense(self.p_feature_vec_total_length)
         self.W_e = tf.keras.layers.Dense(self.p_feature_vec_total_length)
 
@@ -136,7 +138,8 @@ class FullNetwork(tf.keras.Model):
 # encoder = QuestionEncoder(input_dims=100, hidden_units=300, batch_size=None)
 # max_sequence_length = 16
 # encoder(tf.keras.layers.Embedding(100, 200)(tf.zeros(shape=(400, max_sequence_length))))
-p_encoder = FullNetwork(vocab_size=100, embedding_dim=200, hidden_units=300, batch_size=None)
+glove_embedder = GloveEmbedder("question_answering/glove.6B.50d.txt")
+p_encoder = FullNetwork(embedding_layer=glove_embedder.get_embedding_layer(), hidden_units=300, batch_size=None)
 max_p_length = 42
 max_q_length = 16
 paragraph = tf.zeros(shape=(500, max_p_length))

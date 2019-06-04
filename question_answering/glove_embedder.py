@@ -1,36 +1,49 @@
 import numpy as np
+import tensorflow as tf
 
 
 class GloveEmbedder:
 
     def __init__(self, glove_vectors_file):
-        # Deserialize GloVe vectors
-        self.glove_word_vector_map = {}
-        with open(glove_vectors_file, "r", encoding="utf8") as glove:
-            for line in glove:
-                name, vector = tuple(line.split(" ", 1))
-                self.glove_word_vector_map[name] = np.fromstring(vector, sep=" ")
+        embedding_dim = 0
+        with open(glove_vectors_file, "r", encoding="utf8") as glove_file:
+            first_line = glove_file.readline()
+            embedding_dim = first_line.count(" ")
 
-        word_vectors = []
-        for item in self.glove_word_vector_map.items():
-            word_vectors.append(item[1])
-        word_vector_stack = np.vstack(word_vectors)
+        self.embedding_matrix = np.empty(shape=(0, embedding_dim))
+        self.word_to_id = {"<unk>": 0}
 
-        # Gather statistics about the distribution of the word vectors, to be used for generating vectors for unknown
-        # words.
-        self.word_vector_variance = np.var(word_vector_stack, 0)
-        self.word_vector_mean = np.mean(word_vector_stack, 0)
-        self.random_state = np.random.RandomState()
+        # Deserialize the GloVe vectors
+        unknown_token_vector = np.zeros(shape=embedding_dim)
+        current_id = 1
+        with open(glove_vectors_file, "r", encoding="utf8") as glove_file:
+            for line in glove_file:
+                word, vector_string = tuple(line.split(" ", 1))
+                vector = np.fromstring(vector_string, sep=" ")
+                unknown_token_vector = np.add(unknown_token_vector, vector)
+                self.embedding_matrix = np.append(self.embedding_matrix, np.expand_dims(vector, axis=0), axis=0)
+                self.word_to_id[word] = current_id
+                current_id += 1
+        unknown_token_vector = unknown_token_vector / self.embedding_matrix.shape[0]
 
-    def embed(self, word):
-        """Embeds the given word.
+        # Append the unknown token vector to the start of the embedding matrix.
+        self.embedding_matrix = np.insert(self.embedding_matrix, 0, unknown_token_vector, axis=0)
+        self.vocab_size, self.embedding_dim = self.embedding_matrix.shape
+        print("EMBEDDING MATRIX")
+        print(self.embedding_matrix)
+        print("word to id")
+        print(self.word_to_id)
 
-        :param word: The word to be embedded.
-        :return: A vector representing the word.
-        """
-        if word not in self.glove_word_vector_map:
-            # If the word is unknown, then we generate a new vectorization from the (Gaussian-approximated) distribution
-            # of the original GloVe vectorizations.
-            self.glove_word_vector_map[word] = self.random_state.multivariate_normal(self.word_vector_mean,
-                                                                                     np.diag(self.word_vector_variance))
-        return self.glove_word_vector_map[word]
+    def get_embedding_layer(self):
+        return tf.keras.layers.Embedding(self.vocab_size, self.embedding_dim,
+                                         embeddings_initializer=tf.constant_initializer(self.embedding_matrix),
+                                         trainable=False)
+
+    def get_ids(self, words):
+        word_ids = np.array([])
+        for word in words:
+            if word in self.word_to_id:
+                word_ids = np.append(word_ids, self.word_to_id[word])
+            else:
+                word_ids = np.append(word_ids, 0)
+        return word_ids
