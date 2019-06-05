@@ -1,13 +1,15 @@
 # Apple
 .DS_Store
 
+# Caches
+*.cache
+
 # JetBrains
 .idea/
 
 # Python
 __pycache__
 *.pyc
-indexing/.cache/v/cache/lastfailed
 
 # Text files
 *.txt
